@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------
+# Spring Boot settings
+# ---------------------------------------------------------------
+debug: true
+
+spring:
+   main:
+      banner-mode: 'console'
+      allow-bean-definition-overriding: true
+      log-startup-info: true
+      sources: 'classpath:spring-database-${spring.profiles.active}.xml'
+   messages:
+      encoding: 'UTF-8'
+      basename: 'classpath:i18n/messages'
+   mustache:
+      charset: 'UTF-8'
+      prefix: 'classpath:templates/'
+      suffix: '.html'
+
+logging:
+   config: 'classpath:logback-${spring.profiles.active}.xml'
+
+server:
+   port: 9080
+   servlet: 
+      context-path: '/TCMS'
+   session:
+      timeout: 1800

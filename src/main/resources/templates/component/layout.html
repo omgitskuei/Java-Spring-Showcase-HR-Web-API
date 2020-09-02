@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>PTSC TCMS</title>
+	<link rel="shortcut icon" href="#"/>
+	<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+	{{>shared/header}}
+		
+	<div style="border-style: solid;">	
+		{{#menus}}
+			{{#downLevel}}
+				<ul>
+					<li>{{#i18n}}{{menuName}}{{/i18n}}<br/>
+					{{#menuList}} 
+						<a href="{{menuLink}}" onclick="">{{#i18n}}{{menuName}}{{/i18n}}</a><br/>
+					{{/menuList}}
+					</li>
+				</ul>
+			{{/downLevel}}
+			{{^downLevel}}
+				<ul>
+					<li><a href="{{menuLink}}">{{#i18n}}{{menuName}}{{/i18n}}</a></li>
+				</ul>
+			{{/downLevel}}
+		{{/menus}}
+		
+	</div>
+	<br/>
+	<div style="border-style: solid;">
+		<fieldset>
+			{{#title}}{{.}}{{/title}}
+			{{#title2}}> {{.}}{{/title2}}
+			{{#title3}}> {{.}}{{/title3}}
+		</fieldset>
+		
+		{{{layout.body}}}
+	</div>
+	<br/>
+	
+	{{>shared/footer}}
+</body>
+</html>

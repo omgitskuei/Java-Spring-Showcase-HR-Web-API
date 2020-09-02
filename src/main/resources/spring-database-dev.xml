@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans classpath:org/springframework/beans/factory/xml/spring-beans.xsd
+        http://www.springframework.org/schema/tx classpath:org/springframework/transaction/config/spring-tx.xsd
+        http://www.springframework.org/schema/util classpath:org/springframework/beans/factory/xml/spring-util.xsd
+        http://www.springframework.org/schema/data/jpa classpath:org/springframework/data/jpa/repository/config/spring-jpa-1.11.xsd
+        http://www.springframework.org/schema/context classpath:org/springframework/context/config/spring-context.xsd">
+
+	<!-- 使用 Hibernate with JPA 的執行時期(Runtime)參數設定 -->
+	<bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+	
+	<!-- 參數設定值使用「spring-database-*.properties」 -->
+	<context:property-placeholder location="classpath:spring-database-${spring.profiles.active}.properties"/>
+
+	<!-- TCMS DB DataSource 定義，使用 Hikari -->
+	<bean id="dataSource_tcms" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"> 
+		<constructor-arg ref="hikariConfig_tcms" />
+ 	</bean>
+ 	
+ 	<bean id="hikariConfig_tcms" class="com.zaxxer.hikari.HikariConfig">
+	    <property name="poolName" value="HikariCP_TCMS" />
+	    <property name="dataSourceClassName" value="${hibernate.hikari.dataSourceClassName}" />
+	    <property name="maximumPoolSize" value="${hibernate.hikari.maximumPoolSize}" />
+	    <property name="idleTimeout" value="${hibernate.hikari.idleTimeout}" />
+	    <property name="dataSourceProperties">
+	        <props>
+	            <prop key="url">${jdbc.url.tcms}</prop>
+	            <prop key="user">${jdbc.user.tcms}</prop>
+	            <prop key="password">${jdbc.password.tcms}</prop>
+	        </props>
+	    </property>
+	</bean>
+	
+	<!-- TCMS DB 資料表實體(entities)、JPA 定義 -->
+ 	<bean id="entityManagerFactory_tcms" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"> 
+ 		<property name="persistenceUnitName" value="tcms" /> 
+ 		<property name="packagesToScan"> 
+ 			<list>
+ 				<value>com.ptsc.tcms.persistence.entities</value>
+ 			</list>
+ 		</property> 
+ 		<property name="jpaProperties"> 
+ 			<props> 
+             	<prop key="hibernate.dialect">${hibernate.dialect.sqlserver}</prop> 
+             	<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto.sqlserver}</prop> 
+ 				<prop key="hibernate.show_sql">${hibernate.show_sql.sqlserver}</prop> 
+ 				<prop key="hibernate.format_sql">${hibernate.format_sql.sqlserver}</prop> 
+         	</props> 
+ 		</property> 
+ 		<property name="dataSource" ref="dataSource_tcms" /> 
+ 		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" /> 
+ 	</bean>
+	
+	<!-- TCMS DB 交易(Transaction) 管理器定義 -->
+ 	<tx:annotation-driven transaction-manager="transactionManager_tcms" /> 
+ 	<bean id="transactionManager_tcms" class="org.springframework.orm.jpa.JpaTransactionManager"> 
+ 		<property name="entityManagerFactory" ref="entityManagerFactory_tcms" /> 
+ 	</bean>
+ 	
+	<!-- TCMS DB JPA Repository 關聯定義 -->
+ 	<jpa:repositories base-package="com.ptsc.tcms.persistence.repositories" 
+ 		entity-manager-factory-ref="entityManagerFactory_tcms" 
+ 		transaction-manager-ref="transactionManager_tcms" />
+	
+</beans>

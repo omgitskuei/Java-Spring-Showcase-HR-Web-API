@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>PTSC TCMS</title>
+  <link rel="shortcut icon" href="#" />
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <style>
+    div.column {
+      padding: 5px;
+      float: left;
+      display: table-cell;
+      height: 100%
+    }
+
+    div.row {
+      margin: 2px;
+      padding: 3px;
+      display: table-row;
+      border: solid;
+      border-width: 2px;
+    }
+
+    div.rowBorder {
+      border: solid;
+      border-width: px3;
+    }
+
+    div.container {
+      padding: 5px;
+      display: table;
+      table-layout: fixed;
+      border: solid navy;
+      border-width: 3px;
+      width: 90%;
+    }
+
+    .date {
+      width: 130px;
+    }
+
+    select {
+      width: 150px;
+    }
+
+    select:focus {
+      min-width: 150px;
+      max-width: 150px;
+    }
+
+    table {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      border: solid;
+      border-width: px5;
+    }
+
+    tr {
+      display: table-row;
+      border: solid;
+      border-width: px3;
+    }
+
+    td,
+    th {
+      display: table-cell;
+      border: solid;
+      border-width: px3;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>TCMS</h1>
+  <h2>RM004 個人工時統計</h2>
+
+  <div class="container">
+    <div class="row rowBorder" id="RM004FormDiv">
+      <form id="formRM004" action="document.URL/../QueryResults" method="post">
+        <div class="column">
+          <label for="deptNo">單位別</label>
+          <br>
+          <label for="secNo">處別</label>
+          <br>
+          <label for="empNo">人員</label>
+          <br>
+        </div>
+        <div class="column">
+          <select name="deptNo" id="deptNo" form="formRM004" autofocus {{#rm004model}}{{#deptNoSelect}}{{disabled}}{{/deptNoSelect}}{{/rm004model}}>
+            {{#rm004model}}
+              {{#deptNoSelect}}
+                {{#dropdownList}}
+                  <option value="{{optionValue}}" label="{{optionLabel}}" {{selected}}></option>
+                {{/dropdownList}}
+              {{/deptNoSelect}}
+            {{/rm004model}}
+          </select>
+          <span id="spanDeptNo"></span>
+          <br>
+          <select class="secNo" name="secNo" id="secNo" form="formRM004" {{#rm004model}}{{#secNoSelect}}{{disabled}}{{/secNoSelect}}{{/rm004model}}>
+            {{#rm004model}}
+              {{#secNoSelect}}
+                {{#dropdownList}}
+                  <option value="{{optionValue}}" label="{{optionLabel}}" {{selected}}></option>
+                {{/dropdownList}}
+              {{/secNoSelect}}
+            {{/rm004model}}
+          </select>
+          <span id="spanSecNo"></span>
+          <br>
+          <select name="empNo" id="empNo" form="formRM004" {{#rm004model}}{{#empNoSelect}}{{disabled}}{{/empNoSelect}}{{/rm004model}}>
+            {{#rm004model}}
+              {{#empNoSelect}}
+                {{#dropdownList}}
+                  <option value="{{optionValue}}" label="{{optionLabel}}" {{selected}}></option>
+                {{/dropdownList}}
+              {{/empNoSelect}}
+            {{/rm004model}}
+          </select>
+          <span id="empSecNo"></span>
+        </div>
+        <div class="column">
+          <br>
+          <br>
+          <input name="retiredEmp" id="retiredEmp" type="checkbox" checked><label for="retiredEmp">隱藏離職員工</label>
+          <span id="spanRetiredEmp"></span>
+        </div>
+        <div class="column">
+          <label for="oprStartDt">統計起日</label><br>
+          <label for="prjNo">專案</label><br>
+        </div>
+        <div class="column">
+          <input class="date" name="oprStartDt" id="oprStartDt" type="text" onchange="oprStartDtChangeHandler(event)"><br>
+          <!--           onchange="oprStartDtChangeHandler" -->
+          <select name="prjNo" id="prjNo" form="formRM004" {{#rm004model}}{{#prjNoSelect}}{{disabled}}{{/prjNoSelect}}{{/rm004model}}>
+            {{#rm004model}}
+              {{#prjNoSelect}}
+                {{#dropdownList}}
+                  <option value="{{optionValue}}" label="{{optionLabel}}" {{selected}}></option>
+                {{/dropdownList}}
+              {{/prjNoSelect}}
+            {{/rm004model}}
+          </select>
+        </div>
+        <div class="column">
+          <label for="oprEndDt">統計迄日</label>
+        </div>
+        <div class="column">
+          <input class="date" name="oprEndDt" id="oprEndDt" type="text" onchange="oprEndDtChangeHandler(event)"><br>
+          <input id="btnQry" name="btnQry" type="submit" value="統計">
+        </div>
+      </form>
+    </div>
+
+
+
+
+    <div class="row rowBorder" id="RM004QueryResultsDiv">
+      <div id="table">
+        <table>
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>專案</th>
+              <th>歸屬部門</th>
+              <th>工作類別</th>
+              <th>工作項目</th>
+              <th>一般</th>
+              <th>加班</th>
+              <th>總工時</th>
+              <th>工作備註</th>
+              <th>處理項目</th>
+            </tr>
+          </thead>
+
+          {{#rm004model}}
+            {{#table}}
+              {{#tableRow}}
+                <tr>
+                  <td>{{oprDat}}</td>
+                  <td>{{prjNam}}</td>
+                  <td>{{salDeptNo}}</td>
+                  <td>{{wkClass}}</td>
+                  <td>{{itemCName}}</td>
+                  <td>{{workHr}}</td>
+                  <td>{{overHr}}</td>
+                  <td>{{totalHr}}</td>
+                  <td>{{wkNote}}</td>
+                  <td>{{wkType}}</td>
+                </tr>
+              {{/tableRow}}
+            {{/table}}
+            {{#table}}
+              {{^tableRow}}
+                <tr>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                </tr>
+                <tr>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                </tr>
+                <tr>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                  <td>/</td>
+                </tr>
+              {{/tableRow}}
+            {{/table}}
+          {{/rm004model}}
+
+        </table>
+      </div>
+      <br>
+      <input name="prjNo" type="button" value="匯出">
+    </div>
+  </div>
+
+</body>
+
+
+
+<script>
+  "use strict";
+  //global variables
+  var deptNoSelectedValue = "";
+  var secNoSelectedValue = "";
+  var empNoSelectedValue = "";
+  var prjNoSelectedValue = "";
+  var hideRetiredEmp = true;
+  var oprStartDateValue = "";
+  var oprEndDateValue = "";
+  var empNoAllOptionsBackup = [];
+  //objects
+  function DropdownOption(selected, value, label) {
+    this.selected = selected;
+    this.value = value;
+    this.label = label;
+  }
+
+  function DropdownSelect(disabled, dropdownList) {
+    this.disabled = disabled;
+    this.dropdownList = dropdownList;
+  }
+
+  $("#deptNo").change(function(e) {
+    var thisVal = $(this).val();
+    var thisLabel = $('#deptNo option:selected').attr('label');
+    console.log("deptNoChangeHandler start: " + "selected Option{value = " + thisVal + ", label = " + thisLabel + "}");
+    // Set global variable
+    deptNoSelectedValue = thisVal;
+    var deptNoSelected = {
+      "optionLabel": thisLabel,
+      "optionValue": thisVal,
+      "selected": "selected"
+    };
+    $.ajax({
+      method: 'POST',
+      url: 'document.URL/../InitDataSecNo',
+      contentType: 'application/json ; charset=UTF-8',
+      accept: 'application/json',
+      dataType: 'JSON',
+      async: 'true',
+      data: JSON.stringify(deptNoSelected)
+    }).done(function(response, success, xhr) {
+      var returnedDropdownListArray = xhr.responseJSON.dropdownList;
+      // Enable the next Select
+      $('#secNo').prop('disabled', false);
+      // Clear Select of previous Options
+      removeOptions('secNo');
+      removeOptions('empNo');
+      // Add returned Options to Select
+      for (var i = 0; i < returnedDropdownListArray.length; i++) {
+        var newOptionAdded = createNewOption(returnedDropdownListArray[i].optionValue, returnedDropdownListArray[i].optionLabel, 'secNo');
+      }
+    }).fail(function(response, success, xhr) {
+      console.log("xhr.getAllResponseHeaders: " + xhr.getAllResponseHeaders());
+      console.log("xhr.status: " + xhr.status + ", xhr.statusText: " + success);
+    });
+  })
+
+  $("#secNo").change(function(e) {
+    // Get deptNo Option
+    var deptNoVal = $("#deptNo").val();
+    var deptNoLabel = $('#deptNo option:selected').attr('label');
+    // Get secNo Option
+    var thisVal = $(this).val();
+    var thisLabel = $('#secNo option:selected').attr('label');
+    console.log("secNoChangeHandler start: selected's value = [" + thisVal + "], label = [" + thisLabel + "]");
+    // Set global variable
+    secNoSelectedValue = thisVal;
+    var selected = [{
+        "optionLabel": deptNoLabel,
+        "optionValue": deptNoVal,
+        "selected": "selected"
+      },
+      {
+        "optionLabel": thisLabel,
+        "optionValue": thisVal,
+        "selected": "selected"
+      }
+    ];
+    $.ajax({
+      method: 'POST',
+      url: 'document.URL/../InitDataEmpNo',
+      contentType: 'application/json ; charset=UTF-8',
+      accept: 'application/json',
+      dataType: 'JSON',
+      async: 'true',
+      data: JSON.stringify(selected)
+    }).done(function(response, success, xhr) {
+      var returnedDropdownListArray = xhr.responseJSON.dropdownList;
+      // Enable the next Select
+      $('#empNo').prop('disabled', false);
+      // Clear Select of previous Options
+      removeOptions('empNo');
+      // Add returned Options to Select
+      for (var i = 0; i < returnedDropdownListArray.length; i++) {
+        var newOptionAdded = createNewOption(returnedDropdownListArray[i].optionValue, returnedDropdownListArray[i].optionLabel, 'empNo');
+        empNoAllOptionsBackup[i] = newOptionAdded;
+      }
+      // Enable "Hide Retired Emp" checkbox (for user to uncheck if they want to unhide)
+      $('#retiredEmp').prop('disabled', false);
+    }).fail(function(response, success, xhr) {
+      console.log("xhr.getAllResponseHeaders: " + xhr.getAllResponseHeaders());
+      console.log("xhr.status: " + xhr.status + ", xhr.statusText: " + success);
+    });
+  })
+
+  $("#empNo").change(function(e) {
+    // Get empNo Option
+    var thisVal = $(this).val();
+    var thisLabel = $('#empNo option:selected').attr('label');
+    console.log("empNoChangeHandler start: selected's value = [" + thisVal + "], label = [" + thisLabel + "]");
+    // Set global variable
+    empNoSelectedValue = thisVal;
+  })
+  // returns true/false if this attribute is present for element
+  $.fn.hasAttr = function(name) {
+    return this.attr(name) !== undefined;
+  };
+
+  $("#retiredEmp").click(function() {
+    // Get empNo Option
+    // Unchecking the checkbox - Unhide
+    if ($('#retiredEmp').hasAttr('checked')) {
+      $('#retiredEmp').removeAttr('checked');
+      console.log("retiredEmpChangeHandler start: new checked property (true/false)  = [false]");
+      $("#retiredEmp option").each(function() {
+        $(this).removeAttr('hidden');
+      });
+    }
+    // Checking the checkbox - Hide
+    else {
+      $('#retiredEmp').attr('checked','checked');
+      console.log("retiredEmpChangeHandler start: new checked property (true/false)  = [true]");
+      $("#retiredEmp option").each(function() {
+        var label = $(this).attr('label');
+        if (label.substring(label.length-3, label.length-1) == "離職") {
+        	$(this).attr('hidden');
+        };
+      });
+
+    }
+  })
+
+  // Add new option to a Select
+  var createNewOption = function(value, label, targetSelect) {
+    var selectedOption = '';
+    var firstNonHiddenOption = new Boolean(false);
+
+    // Hide Options with EMPSTAT=1
+    if (label.substring(label.length - 3, label.length - 1) == "離職") {
+      selectedOption = '<option value=' + value + ' label=' + label + ' hidden></option>';
+    } else {
+      // Make it so that Hidden Options do NOT get selected (by default automatically)
+      if (firstNonHiddenOption == false) {
+        selectedOption = '<option value=' + value + ' label=' + label + ' selected ></option>';
+        firstNonHiddenOption = true;
+      } else {
+        selectedOption = '<option value=' + value + ' label=' + label + ' ></option>';
+      }
+    }
+    $('#' + targetSelect).append(selectedOption);
+    return selectedOption;
+  }
+  // Remove all options from a select
+  var removeOptions = function(selectId) {
+    var selectElement = document.getElementById(selectId);
+    var i, L = selectElement.options.length - 1;
+    for (i = L; i >= 0; i--) {
+      selectElement.remove(i);
+    }
+  }
+  // Convert param day Gregorian year to MingGuo year
+  var calcDayInMG = function(date) {
+    var year = (date.getFullYear() - 1911).toString();
+    var month = date.getMonth() + 1;
+    if (month < 10) {
+      month = "0" + (month.toString());
+    } else {
+      month = month.toString();
+    }
+    var day = date.getDate();
+    if (day < 10) {
+      day = "0" + (day.toString());
+    } else {
+      day = day.toString();
+    }
+    var thisYearInMG = year + month + day;
+    return thisYearInMG;
+  }
+  //Calculate default value for oprStart/EndDt (This week Monday and Sunday in MG)
+  var calcThisWeekMondayInMG = function() {
+    var curr = new Date;
+    var monday = new Date(curr.setDate(curr.getDate() - curr.getDay() + 1));
+    var friday = new Date(curr.setDate(curr.getDate() - curr.getDay() + 7));
+    monday = calcDayInMG(monday);
+    friday = calcDayInMG(friday);
+    document.getElementById("oprStartDt").defaultValue = monday;
+    document.getElementById("oprEndDt").defaultValue = friday;
+  }
+  //Restricts input for each element in the set of matched elements to the given inputFilter.
+  (function($) {
+    $.fn.inputFilter = function(inputFilter) {
+      return this.on("input contextmenu drop", function() {
+        if (inputFilter(this.value)) {
+          this.oldValue = this.value;
+          this.oldSelectionStart = this.selectionStart;
+          this.oldSelectionEnd = this.selectionEnd;
+        } else if (this.hasOwnProperty("oldValue")) {
+          this.value = this.oldValue;
+          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+        } else {
+          this.value = "";
+        }
+      });
+    };
+  }(jQuery));
+  //Set a filter allowing only numbers 0 to this year in MingGuo Calendar
+  $("#oprStartDt").inputFilter(function(value) {
+    var today = new Date();
+    var thisYearInMG = calcDayInMG(today);
+    console.log("thisYearInMG = " + parseInt(thisYearInMG));
+    return /^\d*$/.test(value) && (value === "" || parseInt(value) <= thisYearInMG);
+  });
+
+  $("#oprEndDt").inputFilter(function(value) {
+    var today = new Date();
+    var thisYearInMG = calcDayInMG(today);
+    console.log("thisYearInMG = " + parseInt(thisYearInMG));
+    return /^\d*$/.test(value) && (value === "" || parseInt(value) <= thisYearInMG);
+  });
+  // oprStart/EndDt change handler
+  function oprStartDtChangeHandler(e) {
+    console.log("oprStartDtChangeHandler start");
+    var val = e.target.value;
+    console.log(val);
+    oprStartDateValue = val;
+  }
+
+  function oprEndDtChangeHandler(e) {
+    console.log("oprEndDtChangeHandler start");
+    var val = e.target.value;
+    console.log(val);
+    oprEndDateValue = val;
+  }
+
+
+  $(document).ready(function() {
+    console.log("current url=" + window.location);
+    // Set default values for oprStartDt and oprEndDt
+    calcThisWeekMondayInMG;
+
+    $('#retiredEmp').prop('disabled', true); //TODO
+  });
+</script>
+
+</html>
